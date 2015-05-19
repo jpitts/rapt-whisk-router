@@ -431,5 +431,5 @@ WS_NID=2 node websocket_server.js
 
 # The Code
 
-The [hello-world](examples/hello-world) example implementation files have also been saved among the examples for your convenience.
+The [hello-world](../examples/hello-world) example implementation files have also been saved among the examples for your convenience.
 

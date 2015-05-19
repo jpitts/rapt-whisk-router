@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>So Basic</title>
+    <script src="http://<%= service_cfg.websocket.host %>:<%= service_cfg.websocket.port %>/socket.io/socket.io.js"></script>
+    
+    <script src="/js/jquery-1.10.2/jquery-1.10.2.min.js"></script>
+    <script src="/js/async-0.9.2/async.js"></script>
+
+    <script src="/rapt-whisk-router/WebSocket.js"></script>
+
+    <script src="/js/soba-client-0.1.0/SOBA.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+  </head>
+
+  <body>
+
+  <script>
+
+    // initialize the Whisk websockets client library 
+    SOBA.init({
+      config: {
+        websocket: { port: <%= service_cfg.websocket.port %> }
+      },
+      ws_token: '<%= ws_token %>',
+      user: { 
+        id: <%= ( (user && user.id) ? user.id : undefined) %>,
+        location_id: '<%= ( (user && user.location_id) ? user.location_id : "") %>' },
+      routes: {
+        base: {},
+        whisk: {},
+        app: {},
+      }
+    }, function () {
+      console.log('Whisk is connected!');
+    });
+
+  </script>
+
+  <div id="header">
+        <h1>So Basic</h1>
+  </div>
+
+  <div>
+
+    <div id="left-panel">
+      
+      <div id="image">
+        <img src="/images/oprah_you_are_all_basic.jpg" />
+      </div>
+      
+    </div>
+
+    <div id="right-panel">
+
+      <div id="identity">You are User ID <%= user.id %>.</div>
+      <div id="status">&nbsp;</div>
+      <div id="message">&nbsp;</div>
+     
+      <div id="chat-container">
+
+        <div id="chat-controls">
+          <textarea id="chat-entry"></textarea>
+          <input type="button" id="button-chat-entry" value="Post" onclick="SOBA.send_chat({ message: jQuery('#chat-entry').val(), to_location_id: SOBA.user.location_id }); console.log('SOBA click button-chat-entry: send chat to location_id=' + SOBA.user.location_id);"/>
+        </div>
+
+        <div id="chat-message-container">
+          <div id="chat-messages"></div>
+        </div>
+        <div id="chat-documentation">
+          To send private messages, use this format: "@1234567890:" 
+          <br/>
+          (with the ID between "@" and ":"). 
+        </div>
+        <div id="chat-notification"></div>
+
+      </div>
+     
+    </div>
+  </div>
+
+  </body>
+
+</html>

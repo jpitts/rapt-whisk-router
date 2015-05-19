@@ -1,0 +1,13 @@
+sessionname chat-room-services
+
+screen -t bash bash
+screen -t proxy bash
+screen -t web-0 bash
+screen -t web-1 bash
+screen -t ws-0 bash
+screen -t ws-1 bash
+screen -t worker bash
+screen -t redis bash
+screen -t bash bash
+
+select 0

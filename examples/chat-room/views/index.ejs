@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Room</title>
+  <script src="http://<%= service_cfg.websocket.host %>:<%= service_cfg.websocket.port %>/socket.io/socket.io.js"></script>
+  <script src="/js/async-0.9.2/async.js"></script>
+  <script src="/js/jquery-1.10.2/jquery-1.10.2.min.js"></script>
+  <script src="/js/chro-client-0.1.0/Config.js"></script>
+  <script src="/js/chro-client-0.1.0/Controller.js"></script>
+  <script src="/js/chro-client-0.1.0/Model.js"></script>
+  <script src="/js/chro-client-0.1.0/WebSocket.js"></script>
+  <script src="/rapt-whisk-router/WebSocket.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+
+<body>
+
+
+<div id="main-container">
+  <h1>Welcome to Chat Room!</h1>
+  
+  <div id="identity">You are User <%= user.id %>.</div>
+  <div id="status">&nbsp;</div>
+  <div id="message">&nbsp;</div>
+
+  <div style="padding:10px;">
+    <input type="button" name="enter" id="button-enter-beach" value="Enter Bubble Beach" onclick="CHRO.Controller.send_relocate({ location_id: 'beach' });"/>
+    <input type="button" name="enter" id="button-enter-dog_park" value="Enter Dog Park" onclick="CHRO.Controller.send_relocate({ location_id: 'dog_park' });"/>
+    <input type="button" name="enter" id="button-enter-world" value="Back to Orbit" onclick="CHRO.Controller.send_relocate({ location_id: 'world' });"/>
+
+  </div>
+
+</div>
+
+<div id="location-container">
+  <h1 id="location-container-title">Location: <%= loc.title %></h1>
+  
+  <div id="chat-container">
+
+    <div id="chat-controls"> 
+      <textarea id="chat-entry"></textarea>
+      <input type="button" id="button-chat-entry" value="Post" onclick="CHRO.Controller.send_chat({ message: jQuery('#chat-entry').val(), to_location_id: CHRO.Model.current_location.id }); console.log('loc=' + CHRO.Model.current_location.id);"/>
+    </div>
+
+    <div id="chat-message-container">
+      <div id="chat-messages"></div>
+    </div>
+    <div id="chat-notification"></div>
+
+  </div>
+</div>
+
+<script>
+
+  // fire up the Chat Room client
+  CHRO.Controller.init({ 
+    config: {
+      websocket: { port: <%= service_cfg.websocket.port %> },
+    },
+    ws_token: '<%= ws_token %>',
+    'user': {
+      id: <%= ( (user && user.id) ? user.id : undefined) %>,
+      location_id: "<%= ( (user && user.location_id) ? user.location_id : 'world') %>"
+    },
+    'location': {
+      id: "<%= ( (user && user.location_id) ? user.location_id : 'world') %>",
+      title: "<%= (loc ? loc.title : 'Unknown') %>",
+      user_ids: [<%= loc.user_ids ? loc.user_ids : '' %>],
+    }
+  }, function () {});
+
+</script>
+
+
+
+</body>
+
+</html>

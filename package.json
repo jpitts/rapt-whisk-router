@@ -1,0 +1,48 @@
+{
+  "name": "rapt-whisk-router",
+  "preferGlobal": true,
+  "version": "0.1.0",
+  "author": "Jamie Pitts <james.pitts@gmail.com>",
+  "description": "Websockets message passing framework with socket.io, redis, and rapt-whisk.",
+  "contributors": [
+    {
+      "name": "Jamie Pitts",
+      "email": "james.pitts@gmail.com"
+    }
+  ],
+  "bin": {
+  },
+  "scripts": {
+  },
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpitts/rapt-whisk-router.git"
+  },
+  "keywords": [
+    "message passing",
+    "websockets",
+    "socket.io",
+    "node.js",
+    "redis"
+  ],
+  "dependencies" : {
+    "redis": "0.8.3",
+    "connect-redis":"1.4.5",
+    "rapt-cipher": "0.1.1",
+    "socket.io":"0.9.14",
+    "socket.io-client": "0.9.16",
+    "winston": "0.7.x",
+    "express": "3.4.x"
+  },
+  "analyze": false,
+  "devDependencies": {
+    "mocha": "1.16.x"
+  },
+  "bundledDependencies": [
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": "0.10.x"
+  }
+}

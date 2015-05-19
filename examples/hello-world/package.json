@@ -1,0 +1,53 @@
+{
+  "name": "rapt-whisk-hello-world-example",
+  "preferGlobal": true,
+  "version": "0.1.0",
+  "author": "Jamie Pitts <james.pitts@gmail.com>",
+  "description": "Example Whisk system in which messages are passed among web clients and multiple websocket servers.",
+  "contributors": [ 
+    {
+      "name": "Jamie Pitts",
+      "email": "james.pitts@gmail.com"
+    } 
+  ],
+  "bin": {
+  },
+  "scripts": {
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha --reporter spec test/**.js"
+  },
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpitts/rapt-whisk-router.git"
+  },
+  "keywords": [
+    "message passing",
+    "node.js",
+    "redis"
+  ],
+  "dependencies" : {
+    "async": "0.9.x",
+    "socket.io": "0.9.x",
+    "socket.io-client": "0.9.x",
+    "forever": "0.10.x",
+    "forever-monitor": "1.2.x",
+    "express": "3.4.x",
+    "express-partials": "0.1.x",
+    "ejs": "0.8.x",
+    "winston": "0.7.x",
+    "rapt-modelrizerly": "0.2.x"
+  },
+  "analyze": false,
+  "devDependencies": {
+    "mocha": "1.16.x",
+    "jquerygo": "0.0.16",
+    "weak": "0.3.x"
+  },
+  "bundledDependencies": [
+  ],  
+  "license": "MIT",
+  "engines": {
+    "node": "0.10.x"
+  }
+}
+

@@ -1,0 +1,23 @@
+
+Welcome to the Chat Room screen session!
+
+screen 0 - you are here
+screen 1 - proxy
+screen 2 - web-0 service
+screen 3 - web-1 service
+screen 4 - websocket-0 service
+screen 5 - websocket-1 service
+screen 6 - worker
+screen 7 - redis
+screen 8 - left blank
+
+For help navigating screen, look under "Window Management" in:
+http://aperiodic.net/screen/quick_reference
+
+To move around these screens, try the following:
+ctrl-a 0 (ctrl-a and then the screen number)
+ctrl-a " (yep, that's a double quote)
+
+To stop all services and end the session, run the following script:
+./bin/stop_test_stack.sh
+

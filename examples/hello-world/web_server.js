@@ -4,11 +4,14 @@ var express = require('express')
   , Config = require('./config')
 ;
 
+var web_host = (process.env.HEWO_WEB_HOST ? process.env.HEWO_WEB_HOST : 'localhost');
+var redis_host = (process.env.HEWO_REDIS_HOST ? process.env.HEWO_REDIS_HOST : 'localhost');
+
 // whisk init
 Whisk.init({
   port: Config.web.port,
   cipher: {  namespace:'web', nid:0 },
-  redis: { port: Config.redis.port },
+  redis: { host: redis_host, port: Config.redis.port },
 });
 
 // run the web service
@@ -26,8 +29,8 @@ Whisk.run_web_service({
       var html = [];
       html.push("<html>");
       html.push("<head>");
-      html.push('<script src="http://localhost:8889/socket.io/socket.io.js"></script>');
-      html.push('<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>');
+      html.push('<script src="http://' + web_host + ':'  + attr.ws_port + '/socket.io/socket.io.js"></script>');
+      html.push('<script src="/js/jquery-1.10.2/jquery-1.10.2.js"></script>');
       html.push('<script src="/rapt-whisk-router/WebSocket.js"></script>');
       html.push('<script src="/js/HelloWorldClient.js"></script>');
       html.push("</head>");

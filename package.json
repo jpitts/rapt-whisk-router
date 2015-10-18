@@ -29,9 +29,10 @@
   "dependencies" : {
     "redis": "0.8.3",
     "connect-redis":"1.4.5",
-    "rapt-cipher": "0.1.1",
-    "socket.io":"0.9.14",
-    "socket.io-client": "0.9.16",
+    "rapt-cipher": "0.1.x",
+    "rapt-modelrizerly":"0.2.x",
+    "socket.io":"1.3.6",
+    "socket.io-client": "1.3.6",
     "winston": "0.7.x",
     "express": "3.4.x"
   },

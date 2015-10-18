@@ -44,10 +44,15 @@ Whisk.run_websocket_service({
     /* attrs:
         session_sync_data - data from the confirmation
         socket - this user's socket
+        session - modelrizerly model
     */
 
-    SOBA.log('info', 'SOBA whisk confirm_ws_session_sync_success: ws session confirmed for user_id=' + attr.session_sync_data.user_id);
-
+    if (err) {
+      SOBA.error('info', 'SOBA whisk confirm_ws_session_sync_success: yet there was an error: ' + err);
+    } else {
+      SOBA.log('info', 'SOBA whisk confirm_ws_session_sync_success: ws session confirmed for user_id=' + attr.session_sync_data.user_id);
+    }
+    
     // fetch the user
     SOBA.Models.User().read(attr.session_sync_data.user_id, function(err, user) {
       
@@ -60,7 +65,12 @@ Whisk.run_websocket_service({
       });
       
       // store the location id in the socket session
-      attr.socket.store.location_id = user.location_id;
+      // commented out while migrating to socket.io-1.3
+      // attr.socket.store.location_id = user.location_id;
+      attr.session.update_store({ $set: { 'location_id': user.location_id }}, function(err, updated_store) {
+        SOBA.log('info', 'updated store.');
+        console.log(updated_store);
+      });
       // NOTE: this is to speed up the transmission of location-specific messages to clients
       
       // announce that the user has entered

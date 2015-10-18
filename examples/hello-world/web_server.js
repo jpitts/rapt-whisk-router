@@ -27,7 +27,7 @@ Whisk.run_web_service({
       html.push("<html>");
       html.push("<head>");
       html.push('<script src="http://localhost:8889/socket.io/socket.io.js"></script>');
-      html.push('<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>');
+      html.push('<script src="/js/jquery-1.10.2/jquery-1.10.2.min.js"></script>');
       html.push('<script src="/rapt-whisk-router/WebSocket.js"></script>');
       html.push('<script src="/js/HelloWorldClient.js"></script>');
       html.push("</head>");

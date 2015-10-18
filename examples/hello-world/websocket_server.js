@@ -11,6 +11,8 @@ Whisk.init({
   redis: {port:6379},
 });
 
+Whisk.context.log('info', 'Hello World: configured websocket service for WS_NID=' + ws_nid);
+
 // run the websocket service
 Whisk.run_websocket_service({
 

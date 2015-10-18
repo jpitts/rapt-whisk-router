@@ -7,7 +7,7 @@ var sio = Whisk.Config.io_instance();
 Cipher.onBroadcast("world.reply", function(origin, socket, payload) {
   Whisk.context.log('info', 'Whisk.WorldObserver.reply ' + payload.message);
  
-  sio.sockets.in().emit("world.reply", payload);
-   
+  sio.sockets.emit('world.reply', payload);
+
 });
 

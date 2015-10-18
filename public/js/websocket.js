@@ -69,8 +69,9 @@
 
 
     // expunge any previously running websockets
-    delete io.sockets['ws://' + domain_name + ':' + port];
-    io.j =[];
+    //commented out while migrating to socket.io-1.3
+    //delete io.sockets['ws://' + domain_name + ':' + port];
+    //io.j =[];
 
     // establish an engine.io websocket connection
     var sio = Whisk.WebSocket.sio = new io.connect('ws://' + domain_name + ':' + port + '/');

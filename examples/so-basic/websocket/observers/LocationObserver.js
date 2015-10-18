@@ -40,47 +40,67 @@ API.init = function init (attr) {
 
 Cipher.onBroadcast("location.add_chat", function(origin, socket, payload) {
   Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: from user id=' + payload.from_user_id + ' in location id=' + payload.to_location_id);
+ 
+  console.log(socket);
 
   // send to the appropriate clients connected to this websocket server
+  var client_ids = Object.keys(IO.engine.clients);
+  client_ids.forEach(function (id, idx) {
+    var client = IO.engine.clients[id];
 
-  var clients = IO.sockets.clients();
-  for (var i=0; i<clients.length; i++) {
+    //console.log('socket id=' + client.id);
+    //console.log('socket whisk_sid=' + client.whisk_sid);
 
-    // get the client nid (in order to match it to this websocket server's nid)
-    var client_nid = (clients[i].store.cipher_address ? clients[i].store.cipher_address.nid : undefined);
-
-    if (
-      // websocket tenent match
-      Whisk.Cipher.instance.getAddress().nid == client_nid
-
-      // location match
-      && clients[i].store.location_id == payload.to_location_id
-    ) {
-
-      // send to all users in location
-      if (!payload.to_user_id) {
-
-        Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: send chat to socket=' +  clients[i].id);
-        IO.sockets.socket(clients[i].id).emit("location.add_chat", payload);
-
-      // send to specified user in location
-      //  also, send to the from_user (so they can see their own message sent)
-      } else if (payload.to_user_id && clients[i].store.user_id
-          && (
-            payload.to_user_id == clients[i].store.user_id // to_user
-            ||
-            payload.from_user_id == clients[i].store.user_id // from_user
-            )
-        ) {
-
-        Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: send chat to socket=' +  clients[i].id + ' belonging to user_id ' + clients[i].store.user_id);
-        IO.sockets.socket(clients[i].id).emit("location.add_chat", payload);
-
+    // get the client cipher nid (in order to match it to this websocket server's nid)
+    Whisk.Models.Session().read(client.whisk_sid , function(err, sess) {
+      if (err) {
+        Whisk.context.log('error', 'Whisk.LocationObserver.add_chat: cannot get session for sid=' + client.whisk_id + ': ' + err);
+        return;
       }
 
-    } // END websocket tenent and location match
+      if (!sess) {
+        Whisk.context.log('error', 'Whisk.LocationObserver.add_chat: cannot get session for sid=' + client.whisk_id);
+        return;
+      }
 
-  }
+      if (
+        // websocket tenent match
+        Whisk.Cipher.instance.getAddress().nid == sess.ws_cipher_address.nid
+
+        // location match
+        && sess.store.location_id == payload.to_location_id
+      ) {
+
+        // send to all users in location
+        if (!payload.to_user_id) {
+          
+          Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: send chat to socket=' +  sess.socket_id);
+          if (IO.sockets.connected[sess.socket_id]) {
+            IO.sockets.connected[sess.socket_id].emit("location.add_chat", payload);
+          }
+
+        // send to specified user in location
+        //  also, send to the from_user (so they can see their own message sent)
+        } else if (payload.to_user_id && sess.user_id
+            && (
+              payload.to_user_id == sess.user_id // to_user
+              ||
+              payload.from_user_id == sess.user_id // from_user
+              )
+          ) {
+
+          Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: send chat to socket=' +  sess.socket_id + ' belonging to user_id ' + sess.user_id);
+          if (IO.sockets.connected[sess.socket_id]) {
+            IO.sockets.connected[sess.socket_id].emit("location.add_chat", payload);
+          }
+
+        }
+
+      } // END websocket tenent and location match
+
+    }); // END the session lookup
+
+  }); // END loop over client ids
 
 });
 
@@ -91,27 +111,46 @@ Cipher.onBroadcast("location.add_user", function(origin, socket, payload) {
   Whisk.context.log('info', 'Whisk.LocationObserver.add_user: user id=' + payload.user_id + ' to location id=' + payload.location_id);
 
   // send to the appropriate clients connected to this websocket server
+  var client_ids = Object.keys(IO.engine.clients);
+  client_ids.forEach(function (id, idx) {
+    var client = IO.engine.clients[id];
 
-  var clients = IO.sockets.clients();
-  for (var i=0; i<clients.length; i++) {
+    console.log('client id=' + client.id);
+    console.log('client whisk_sid=' + client.whisk_sid);
 
-    // get the client nid (in order to match it to this websocket server's nid)
-    var client_nid = (clients[i].store.cipher_address ? clients[i].store.cipher_address.nid : undefined);
+    // get the client cipher nid (in order to match it to this websocket server's nid)
+    Whisk.Models.Session().read(client.whisk_sid, function(err, sess) {
+      if (err) {
+        Whisk.context.log('error', 'Whisk.LocationObserver.add_user: cannot get session for sid=' + client.whisk_id + ': ' + err);
+        return;
+      }
 
-    if (
-      // websocket tenent match
-      Whisk.Cipher.instance.getAddress().nid == client_nid
+      if (!sess) {
+        Whisk.context.log('error', 'Whisk.LocationObserver.add_user: cannot get session for sid=' + client.whisk_id);
+        return;
+      }
+      
+      //console.log('cipher address=',  sess.ws_cipher_address);
+      
+      // send to user who is at the current location
+      if (
+        // websocket tenent match
+        Whisk.Cipher.instance.getAddress().nid == sess.ws_cipher_address.nid
 
-      // location match
-      && clients[i].store.location_id == payload.location_id
-    ) {
+        // location match
+        && sess.store.location_id == payload.location_id
+      ) {
 
-      Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: send chat to socket=' +  clients[i].id);
-      IO.sockets.socket(clients[i].id).emit("location.add_user", payload);
+        Whisk.context.log('info', 'Whisk.LocationObserver.add_user: send add_user to socket=' +  sess.socket_id);
+        if (IO.sockets.connected[sess.socket_id]) {
+          IO.sockets.connected[sess.socket_id].emit("location.add_user", payload);
+        }
 
-    } // END websocket tenent and location match
+      } // END websocket tenent and location match
 
-  }
+    });
+
+  });
 
 });
 

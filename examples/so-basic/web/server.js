@@ -58,6 +58,11 @@ var configure_express = function (app, whisk) {
     // init user
     init_user({ req:req, res:res }, function (err, attr) {
       
+      if (!attr || !attr.user) {
+        res.redirect('/reset');
+        return;
+      }
+
       // now start the whisk confirmation process
       
       // session sync data
@@ -82,6 +87,18 @@ var configure_express = function (app, whisk) {
     });
 
   }); // END index route
+
+
+  // reset route
+  
+  app.get('/reset', function (req, res, next) {
+    req.session.destroy(function() {});
+    delete req.sessionID;
+    res.redirect('/');
+  });
+
+  // END reset route
+
 
 } 
 
@@ -120,7 +137,7 @@ var init_user = function init_user (attr, cb) {
 
   // fetch the user using session data
   } else {
-   
+    
     // get the user
     SOBA.Models.User().read(attr.req.session.user.id, function (err, user) {
       if (err) { SOBA.log('error', err); return cb(err, undefined); }

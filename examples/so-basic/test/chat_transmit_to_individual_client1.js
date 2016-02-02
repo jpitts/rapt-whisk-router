@@ -44,6 +44,8 @@ jqgo.visit('http://localhost:9090/', function() {
 
       setTimeout(function () {
 
+        test_log('info', 'getPage');
+
         // phantom.js evaluate
         page.evaluate(function(args) {
           var score_card = {}; // used to store data withing the phantom.js page environment

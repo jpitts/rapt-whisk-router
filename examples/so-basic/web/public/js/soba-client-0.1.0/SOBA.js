@@ -217,7 +217,10 @@
     /*
       user_id
     */
-   
+    
+    console.log('SOBA.add_user ' + attr.user_id);
+    //console.log('> I am user ' + SOBA.user.id);
+
     // display notification
     var message;
     if (SOBA.user.id == attr.user_id) {

@@ -67,7 +67,7 @@ var configure_express = function (app, whisk) {
       
       // session sync data
       var session_sync_data = {
-        sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+        sid: whisk.Auth.get_sid_from_web_req(req),
         user_id: attr.user.id
       }; 
       // NOTE: this data will be made available to the confirm_ws_session_sync callbacks

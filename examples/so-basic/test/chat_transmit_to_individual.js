@@ -205,7 +205,8 @@ describe('Page', function(){
             function () {
 
               jqgo('#message').html(function(message) {
-                
+                console.log('UNTIL user enter room: ' + message); 
+
                 //You entered the room!
                 var regex = /You\ entered\ the\ room/g;
                 if (message.match(regex)) {
@@ -250,6 +251,8 @@ describe('Page', function(){
               console.log('checking for other user identified ' + untilOtherIDCount);
 
               jqgo('#message').html(function(message) {
+                console.log('UNTIL other user identified: ' + message); 
+
                 //User 2984129198 entered the room!
                 var regex = /User\sID=(.*)\s/g;
                 if (message.match(regex)) {
@@ -259,13 +262,13 @@ describe('Page', function(){
                 }
               });
 
-              return (other_user_id || untilOtherIDCount > 10);
+              return (other_user_id || untilOtherIDCount > 20);
             },
             // on each test return false
             function (waitCb) {
               console.log('untilOtherIDCount ' + untilOtherIDCount);
               untilOtherIDCount++;
-              setTimeout(waitCb, 1000);
+              setTimeout(waitCb, 250);
             },
             // on test return true
             function (err, results) {

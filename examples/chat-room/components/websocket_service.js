@@ -76,88 +76,59 @@ WS.init = function (attr) {
     // run the websocket service
     Whisk.run_websocket_service({ 
 
-      // custom on_connection callback
-      on_connection: function (socket, whisk) {
-        CHRO.log('info', 'CHRO whisk: on_connection for socket id=' + socket.id);  
-        
-        // start the ws session sync confirmation process (request the ws_token from the client)
-        // NOTE: used in conjunction with Whisk.Auth.start_ws_session_sync in the web service 
+      confirm_ws_session_sync_success: function (err, attr) {
+        /* attrs:
+            session_sync_data - data from the confirmation
+            socket - this user's socket
+            session - modelrizerly model
+        */
 
-        socket.emit("whisk.auth.request", {}, function(payload) {
+        if (err) {
+          CHRO.error('info', 'CHRO whisk confirm_ws_session_sync_success: yet there was an error: ' + err);
+        } else {
+          CHRO.log('info', 'CHRO whisk confirm_ws_session_sync_success: ws session confirmed for user_id=' + attr.session_sync_data.user_id);
+        }
 
-          // make sure the payload returned contains the ws_token  
-          if (payload && payload.ws_token) {
-            CHRO.log('info', 'CHRO whisk: ws_token returned from whisk.auth.request ACK callback: ', payload); 
-          } else {
-            CHRO.log('error', 'CHRO whisk: ws_token not returned from whisk.auth.request ACK callback: ', payload); 
-            return;
-          }
+        // fetch the user
+        CHRO.Models.User().read(attr.session_sync_data.user_id, function(err, user) {
           
-          // confirm (the callbacks will be returned with user data)
+          // get the cipher address for this websocket connection
+          var addr = Whisk.Auth.get_cipher_address_from_ws({ socket: attr.socket });
+          //console.log('cipher address: ', addr);
+          
+          // set the cipher address
+          user.set_cipher_address(addr, function (err) {
+            if (err) { CHRO.log('error', 'Could not update the user cipher address: ' + err); return; }
+            CHRO.log('info', 'CHRO whisk: user cipher address updated!');
+          });
+          
+          // update the session store
+          attr.session.update_store({ $set: { 'location_id': user.location_id }}, function(err, updated_store) {
+            CHRO.log('info', 'CHRO whisk: set location_id in the socket.store.');
 
-          whisk.Auth.confirm_ws_session_sync({
-            token: payload.ws_token,
-            socket: socket,
-
-            error: function (err, data) {
-              CHRO.log('info', 'CHRO whisk: ws session confirm error: ' + err); 
-            },
-
-            failure: function (err, data) {
-              CHRO.log('error', 'CHRO whisk: ws session confiration failed!'); 
-            },
-
-            success: function (err, data) {
-              /* data:
-                  success
-                  token
-                  session_sync_data
-                  socket
-              */
-              
-              CHRO.log('info', 'CHRO whisk: ws session confirmed for user_id=' + data.session_sync_data.user_id); 
-              
-              // now set the cipher address so that this websocket connection can be directly messaged to
-
-              // fetch the user
-              CHRO.Models.User().read(data.session_sync_data.user_id, function(err, user) {
-                
-                // get the cipher address for this websocket connection
-                var addr = whisk.Auth.get_cipher_address_from_ws({ socket: socket });
-                //console.log('cipher address: ', addr);
-                
-                // set the cipher address
-                user.set_cipher_address(addr, function (err) {
-                  if (err) { CHRO.log('error', 'Could not update the user cipher address: ' + err); return; }
-                  CHRO.log('info', 'CHRO whisk: user cipher address updated!');
-                });
-
-                // set the user and location in the ws session
-                CHRO.log('info', 'CHRO whisk: set user_id and location_id in the socket.store.');
-                socket.store.user_id = user.id;
-                socket.store.location_id = user.location_id;
-                socket.store.cipher_address = addr;
-                // NOTE: the store is shared across all websocket servers
-
-              });
-              
-            }
+            //console.log(updated_store);
           });
 
-        }); // END whisk.auth.request
-        
-      },
+          // set the user and location in the ws session
+          // NOTE: commented out while migrating to socket.io-1.3
+          //socket.store.user_id = user.id;
+          //socket.store.location_id = user.location_id;
+          //socket.store.cipher_address = addr;
 
-      // custom on_disconnect callback
-
-      on_disconnect: function (whisk) {
-        CHRO.log('info', 'CHRO whisk: configured on disconnect');  
+        });
         
-      }
+      } // END confirm_ws_session_sync_success callback
+
+
     }, function (err, whisk) {
-      CHRO.log('info', 'CHRO whisk: now running!'); 
-    
-    });
+      if (err) {
+        CHRO.log('error', 'CHRO whisk init: whisk could not be started: ' + err);
+        return;
+      }
+
+      CHRO.log('info', 'CHRO whisk init: now running!');
+    }); // END run websocket service
+
 
     // log the init
     var logged_start = Whisk.log_start_block({

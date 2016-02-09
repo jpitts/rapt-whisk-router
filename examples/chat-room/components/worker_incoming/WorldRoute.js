@@ -25,22 +25,41 @@ Route.init = function (attr) {
 
   context.log('info', 'Worker.WorldRoute.init set up location data.', {});  
 
+  // locations needing to be added
+  var locations_to_add = [];
+
   // set up the default locations from the config file
   context.Models.Location().find({}, {}, function (err, locs) {
     if (locs && locs[0]) {
-      for (var i=0; i<locs.length; i++) {
-        context.log('info', 'Worker.WorldRoute.init verify location=' + locs[i].id + '.', {}); 
-      }
-    } else {
-      context.log('info', 'Worker.WorldRoute.init create locations.', {}); 
+      context.log('info', 'Worker.WorldRoute.init locations already added, now verifying...', {}); 
       
+      // create hash of already loaded locations by id
+      var locs_hash = {};
+      locs.map(function (loc) { locs_hash[loc.id] = loc; });
+
+      // load up on locations in the config but not stored in the data model
       for (var i=0; i<context.config.data.locations.length; i++) {
         var loc = context.config.data.locations[i];
-        context.Models.Location(loc).create(function(err, created_loc) {
-          context.log('info', 'Worker.WorldRoute.init created location id=' + created_loc.id + '.', {}); 
-        });
+        if (!locs_hash[loc.id]) locations_to_add.push(loc); 
+      }
+
+      context.log('info', 'Worker.WorldRoute.init will create ' +  locations_to_add.length + ' additional locations.', {}); 
+
+    } else {
+      context.log('info', 'Worker.WorldRoute.init create ' + context.config.data.locations.length + ' new locations.', {}); 
+      
+      for (var i=0; i<context.config.data.locations.length; i++) {
+        locations_to_add.push(context.config.data.locations[i]);
       }
     }
+
+    // add new locations
+    for (var i=0; i<locations_to_add.length; i++) {
+      context.Models.Location(locations_to_add[i]).create(function(err, created_loc) {
+        context.log('info', 'Worker.WorldRoute.init created location id=' + created_loc.id + '.', {}); 
+      });
+    }
+
   });
 
   // listen on each of the routes  

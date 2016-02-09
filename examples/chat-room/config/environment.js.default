@@ -38,6 +38,9 @@ exports.config = {
   data: { 
     locations: [
       {id: 'room', title: 'The Room'},
+      {id: 'beach', title: 'Bubble Beach'},
+      {id: 'dog_park', title: 'Dog Park'},
+      {id: 'world', title: 'Orbit'},
     ]
   }
 };

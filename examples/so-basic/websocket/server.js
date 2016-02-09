@@ -65,8 +65,6 @@ Whisk.run_websocket_service({
       });
       
       // store the location id in the socket session
-      // commented out while migrating to socket.io-1.3
-      // attr.socket.store.location_id = user.location_id;
       attr.session.update_store({ $set: { 'location_id': user.location_id }}, function(err, updated_store) {
         SOBA.log('info', 'updated store.');
         //console.log(updated_store);

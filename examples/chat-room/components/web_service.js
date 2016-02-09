@@ -151,7 +151,7 @@ Web.init = function (attr) {
           
           // session sync data
           var session_sync_data = {
-            sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+            sid: whisk.Auth.get_sid_from_web_req(req),
             user_id: req.session.user.id
           };
           // NOTE: this data will be made available to the confirm_ws_session_sync callbacks
@@ -207,9 +207,17 @@ Web.enter_world = function enter_world (attr, cb) {
   // set up a lightweight session
   if (typeof req.session.user === 'undefined') {
     
+    if (!CHRO.config.data || !CHRO.config.data.locations || !CHRO.config.data.locations[0]) {
+      var err = 'Could not find a valid default location in the config data!';
+      CHRO.log('error', err);
+      return cb(err, undefined);
+    }
+
+    var loc = CHRO.config.data.locations[0];
+    
     var user = { 
       id: whisk.Auth.random_hash(), 
-      location_id: "world" 
+      location_id: loc.id
     };  
     
     // create a user record 
@@ -226,7 +234,7 @@ Web.enter_world = function enter_world (attr, cb) {
 
         // session sync data
         var session_sync_data = {
-          sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+          sid: whisk.Auth.get_sid_from_web_req(req),
           user_id: req.session.user.id
         }; 
         // NOTE: this data will be made available to the confirm_ws_session_sync callbacks
@@ -249,9 +257,13 @@ Web.enter_world = function enter_world (attr, cb) {
 
   } else {
     
+    //console.log('session user: ', req.session.user);
+
     // get the user
     CHRO.Models.User().read(req.session.user.id, function (err, user) {
       if (err) { console.error(err); }
+      
+      //console.log('user: ', user);
       
       // get the location
       CHRO.Models.Location().read(user.location_id, function (err, loc) {
@@ -259,7 +271,7 @@ Web.enter_world = function enter_world (attr, cb) {
                 
         // session sync data
         var session_sync_data = {
-          sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+          sid: whisk.Auth.get_sid_from_web_req(req),
           user_id: req.session.user.id
         }; 
         // NOTE: this data will be made available to the confirm_ws_session_sync callbacks

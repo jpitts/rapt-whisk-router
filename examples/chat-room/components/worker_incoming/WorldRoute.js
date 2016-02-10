@@ -82,7 +82,8 @@ routes.relocate = function (origin, tenent, payload) {
  
     // find the location
     context.Models.Location().read(payload.location_id, function (err, loc) {
-      //console.log('location id=' + loc.id);
+      console.log('location id=' + loc.id);
+      console.log(loc.user_ids.indexOf(payload.user_id));
       //console.log(loc.user_ids);
 
       if (loc) {
@@ -114,7 +115,10 @@ routes.relocate = function (origin, tenent, payload) {
           // get the location of the room the user is leaving
           context.Models.Location().read(user.location_id, function (err, leaving_loc) {
             if (leaving_loc && leaving_loc.user_ids && leaving_loc.user_ids[0]) {
+              context.log('info', 'Worker.WorldRoute.relocate user id=' + payload.user_id + ' leaving location_id=' + leaving_loc.id);
+
               leaving_loc.user_ids.splice(1, leaving_loc.user_ids.indexOf(payload.user_id));
+              console.log('new user_ids for this location ', leaving_loc.user_ids);
               leaving_loc.update({fields: ["user_ids"]}, function(err) {
                 if (err) { console.err(err); }
                 

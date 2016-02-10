@@ -37,7 +37,7 @@
     "winston": "0.7.x",
     "http-proxy": "1.5.x",
     "eventemitter3": "0.1.x",
-    "rapt-modelrizerly": "0.2.x"
+    "rapt-modelrizerly": ">=0.2.2"
   },
   "analyze": false,
   "devDependencies": {

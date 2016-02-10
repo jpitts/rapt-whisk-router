@@ -31,11 +31,26 @@ API.init = function init (attr) {
 
 Cipher.onBroadcast("world.add_user_to_location", function(origin, tenent, payload) {
   Whisk.context.log('info', 'Whisk.WorldObserver.add_user_to_location: user id=' + payload.user_id + ' to location id=' + payload.location_id + '');
-  //console.log(payload); 
+  //console.log('payload: ', payload); 
   //console.log('origin: ', origin);
   //console.log('tenent: ', tenent);
- 
 
+  Whisk.Auth.get_session({user_id: payload.user_id}, function (err, session ) {
+    if (err) console.error(err);
+    console.log('get whisk session: ' + session.sid);
+    
+    // update the session with the new location
+    session.update_store({ $set: { 'location_id': payload.location_id }}, function(err, updated_store) {
+
+      if (err) { console.error(err); }
+      console.log('updated session with location_id=' + updated_store.location_id);    
+
+    });
+ 
+  });
+
+ 
+  /*
   // temporary hack to enable rooms
   var clients = IO.sockets.clients();
   for (var i=0; i<clients.length; i++) {
@@ -47,6 +62,7 @@ Cipher.onBroadcast("world.add_user_to_location", function(origin, tenent, payloa
       clients[i].store.location_id = payload.location_id;
     }
   }
+  */
 
   // join the room using the socket id from the user
   /*

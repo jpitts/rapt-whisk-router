@@ -68,6 +68,7 @@ Web.init = function (attr) {
         nid: attr.CIPHER_NID ? attr.CIPHER_NID : 0, 
       },
       redis: service_cfg.redis,
+      session: service_cfg.session,
       logger: CHRO.logger, log: CHRO.log,
     });
     // NOTE: also provides a rapt-cipher instance
@@ -203,7 +204,9 @@ Web.enter_world = function enter_world (attr, cb) {
   var CHRO = attr.context;
   var whisk = attr.whisk;
   var Cipher = attr.cipher;
-
+  
+  console.log('user in session: ', req.session.user);
+  
   // set up a lightweight session
   if (typeof req.session.user === 'undefined') {
     

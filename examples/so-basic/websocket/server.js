@@ -65,11 +65,10 @@ Whisk.run_websocket_service({
       });
       
       // store the location id in the socket session
-      //attr.session.update_store({ $set: { 'location_id': user.location_id }}, function(err, updated_store) {
-        //SOBA.log('info', 'updated store.');
-        //console.log(updated_store);
-      //});
-      // NOTE: this is to speed up the transmission of location-specific messages to clients
+      attr.session.update_store({ $set: { 'location_id': user.location_id }}, function(err, updated_store) {
+        SOBA.log('info', 'updated store.');
+        console.log(updated_store);
+      });
       
       // announce that the user has entered
       Whisk.Cipher.getInstance().transmit(

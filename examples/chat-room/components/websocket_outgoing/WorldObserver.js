@@ -31,7 +31,7 @@ API.init = function init (attr) {
 
 Cipher.onBroadcast("world.add_user_to_location", function(origin, tenent, payload) {
   Whisk.context.log('info', 'Whisk.WorldObserver.add_user_to_location: user id=' + payload.user_id + ' to location id=' + payload.location_id + '');
-  //console.log('payload: ', payload); 
+  console.log('payload: ', payload); 
   //console.log('origin: ', origin);
   //console.log('tenent: ', tenent);
 

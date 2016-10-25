@@ -35,6 +35,10 @@ exports.config = {
     port: 6379, 
     options: {}
   },
+  session: {
+    secret: 'chatroomforwhiskers',
+    key: 'chat-room-example'
+  },
   data: { 
     locations: [
       {id: 'room', title: 'The Room'},

@@ -55,7 +55,7 @@ WS.init = function (attr) {
     // cipher namespace and nid
     var cipher_namespace = attr.CIPHER_NS ? attr.CIPHER_NS : 'ws';
     var cipher_nid = attr.CIPHER_NID ? attr.CIPHER_NID : 0;
-
+    
     // set up whisk
     Whisk.init({ 
       context: CHRO,
@@ -65,6 +65,7 @@ WS.init = function (attr) {
       websocket_observers_path: components_name + '/websocket_outgoing',
       cipher: { namespace: cipher_namespace, nid: cipher_nid, },
       redis: service_cfg.redis,
+      session: service_cfg.session,
       logger: CHRO.logger, log: CHRO.log, 
     });
 

@@ -41,15 +41,16 @@ API.init = function init (attr) {
 Cipher.onBroadcast("location.add_chat", function(origin, socket, payload) {
   Whisk.context.log('info', 'Whisk.LocationObserver.add_chat: from user id=' + payload.from_user_id + ' in location id=' + payload.to_location_id);
  
-  console.log(socket);
+  //console.log(socket);
+  //console.log(IO.sockets);
 
   // send to the appropriate clients connected to this websocket server
   var client_ids = Object.keys(IO.engine.clients);
   client_ids.forEach(function (id, idx) {
     var client = IO.engine.clients[id];
 
-    //console.log('socket id=' + client.id);
-    //console.log('socket whisk_sid=' + client.whisk_sid);
+    console.log('socket id=' + client.id);
+    console.log('socket whisk_sid=' + client.whisk_sid);
 
     // get the client cipher nid (in order to match it to this websocket server's nid)
     Whisk.Models.Session().read(client.whisk_sid , function(err, sess) {
@@ -62,6 +63,11 @@ Cipher.onBroadcast("location.add_chat", function(origin, socket, payload) {
         Whisk.context.log('error', 'Whisk.LocationObserver.add_chat: cannot get session for sid=' + client.whisk_id);
         return;
       }
+
+      //console.log('sess socket_id ' + sess.socket_id);
+      //console.log('sess user_id ' + sess.user_id);
+      //console.log(Whisk.Cipher.instance.getAddress().nid + '==' + sess.ws_cipher_address.nid);
+      //console.log(sess.store.location_id + '==' + payload.to_location_id);
 
       if (
         // websocket tenent match

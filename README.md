@@ -76,6 +76,7 @@ Whisk.init is called with the following attributes:
 * `base_path` - indicates to Whisk where the web or websocket files are located
 * `cipher` - object containing namespace and nid, used to make Whisk reachable by Cipher
 * `redis` - object containing redis configuration
+* `session` - object containing shared session configuration
 
 Once initialized, either a web or websocket service can then be run.
 
@@ -110,6 +111,10 @@ Whisk.init({
     port: 6379,
     options: {}
   },
+  session: {
+    secret: 'abc123',
+    key: 'my-app-name' 
+  }
 });
 ```
 

@@ -84,7 +84,7 @@ CHRO.init = function (attr, cb) {
     CHRO.Models = Modelrizerly.init({ context: CHRO });
 
   }
-
+  
   // done!
   cb(null, CHRO);
 

@@ -25,6 +25,8 @@ var test_log = function (level, descr, attr) {
 
 setTimeout(function () {
 
+test_log('info','fire up jquery go...');
+
 jqgo.visit('http://localhost:9090/', function() {
   test_log('info','visit');
   

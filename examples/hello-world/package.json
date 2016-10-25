@@ -41,7 +41,7 @@
   "devDependencies": {
     "mocha": "1.16.x",
     "jquerygo": "0.0.16",
-    "weak": "0.3.x"
+    "weak": "1.0.x"
   },
   "bundledDependencies": [
   ],  

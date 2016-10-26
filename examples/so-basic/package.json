@@ -40,7 +40,6 @@
   "analyze": false,
   "devDependencies": {
     "mocha": "1.16.x",
-    "jquerygo": "0.0.16",
     "weak": "1.0.x"
   },
   "bundledDependencies": [

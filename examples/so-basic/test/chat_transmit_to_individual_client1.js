@@ -1,94 +1,110 @@
 
-var jqgo = require('jquerygo');
-
-console.log('Start client1.');
-
-// stop the client after a while
-setTimeout (function () {
-  console.log("Stopping client1...");
-  process.exit(0);
-}, 12000);
-
+casper.echo('Start individual client1');
 
 /*
-  attributes
+  attrs:
+    casper.cli.get(0) - script name
+    casper.cli.get(1) - service URL
+*/    
+
+var service_url = casper.cli.get(1) ? casper.cli.get(1) : 'http://localhost:9090';
+
+var num_tests = 1;
+var casper_site = undefined;
+var timeouts = {
+  until_done: 5000
+};
+
+/*
+  utility functions
 */
 
-var test_log = function (level, descr, attr) {
-  console.log(level + ': Session Test: ' + descr);
+var log = function (level, descr, attr) {
+  //console.log(level + ': Session Test: ' + descr);
+  casper.echo('Client1: ' + descr);
 }
 
 
-/* 
-  main client body
+/*
+  start the test
 */
 
-setTimeout(function () {
+casper.test.begin('Transmit to individual client', num_tests, function suite (test) {
+  //var test = this;
 
-test_log('info','fire up jquery go...');
+  log('warn', 'Start client');
 
-jqgo.visit('http://localhost:9090/', function() {
-  test_log('info','visit');
+
+  /* 
+     start: go to the web service endpoint
+     site title test
+  */
+
+  log('warn', 'Visit "' + service_url + '"');
   
-  // phantom.js waitForPage  
-  jqgo.waitForPage(function(){
-    test_log('info','waitForPage');
+  casper.start(service_url, function() {
+    casper_site = this;
+     
+    log('warn', 'Loaded "' + casper_site.getTitle() + '"');
 
-    // phantom.js getPage
-    jqgo.getPage(function(page) {
-      test_log('info', 'getPage');
-      
-      var eval_attr = { // data passed to the evaluate
-        test_log: test_log 
-        // NOTE: functions are not passed for some reason 
-        //  (test_log will be undefined on the other side)
-      };
-
-      setTimeout(function () {
-
-        test_log('info', 'getPage');
-
-        // phantom.js evaluate
-        page.evaluate(function(args) {
-          var score_card = {}; // used to store data withing the phantom.js page environment
-           
-          // NOTE: javascript in this function is executed in-page!
-          // at this point, socket.io has connected, session confirmed, and user relocated to beach
-
-          console.log('info: page.evaluate: client1 begin interacting with javascript of page.');
-          console.log('info: page.evaluate: client1 user_id=' + SOBA.user.id);
-
-          // test out a websocket tear_down       
-          //Whisk.WebSocket.tear_down();
-          // NOTE: this would cause the websocket session test to fail 
+  }); // END casper.start
 
 
-          // return the client object for testing
-          return { client: SOBA };
-          
-          
-          // END: execution of in-page javascript!
-          
 
-        }, function(retVal) {
-          //console.log('returned value ', retVal);
-          
-          var SOBA = retVal.client;
-        
-          // called when you return from the evaluation.
-          test_log('info','completed the page.evaluate.');
-          //jqgo.close();
-          
+  /*
+     then: additional tests
+  */
 
-        }, eval_attr ); // END page.evaluate
-
-      }, 2000); // END waiting
-
-    }); // END getPage
-
-  }); // END waitForPage
-
-}); // END visit
+  casper.then(function () {
+    log('warn', 'Continue testing "' + casper_site.getTitle() + '"');
+    
+    test.assertTitle("So Basic", "The expected title is 'So Basic'");
+    
+  });
 
 
-}, 5000);
+
+  /*
+    chat entry test
+  */
+
+  casper.waitForSelector('#chat-entry', function() {
+    log('warn', 'Loaded #chat-entry selector');
+    //require('utils').dump(this.getElementsInfo('#chat-entry'));
+    var elem = this.getElementsInfo('#chat-entry');
+    
+    setTimeout(function () {
+    
+      casper.evaluate(function(chat_msg) {
+        document.querySelector('#chat-entry').value = chat_msg;
+        document.querySelector('#button-chat-entry').click();
+      }, "Hello, Primary Client!" // chat message to send
+      );
+
+    }, 1000);
+
+  });
+
+
+
+  /* 
+    run and then done
+  */
+
+  casper.run(function() {
+    var run = this;
+    
+    log('warn', 'Will now wait ' + timeouts.until_done + ' ms...');
+
+    // wait, then exit (so that the client0 may perform its tests)
+    setTimeout(function () {
+      log('warn', 'Done.');
+      test.done();
+    }, timeouts.until_done);
+    
+  });
+
+    
+}); // END test
+
+

@@ -189,16 +189,16 @@
       if (chats[i].to_user_id) {
 
         if (SOBA.user.id == chats[i].to_user_id) {
-          message_text = message_text + '<p>' + chats[i].from_user_id + ': (private) ' + chats[i].message + '</p>';
+          message_text = message_text + '<p class="chat-message private-chat-message">' + chats[i].from_user_id + ': (private) ' + chats[i].message + '</p>';
 
         } else {
-          message_text = message_text + '<p>' + chats[i].from_user_id + ': (private) ' + chats[i].message + '</p>';
+          message_text = message_text + '<p class="chat-message private-chat-message">' + chats[i].from_user_id + ': (private) ' + chats[i].message + '</p>';
 
         }
 
       // message to all users in the location
       } else {
-        message_text = message_text + '<p>' + chats[i].from_user_id + ': ' + chats[i].message + '</p>';
+        message_text = message_text + '<p class="chat-message">' + chats[i].from_user_id + ': ' + chats[i].message + '</p>';
       }
     }
 

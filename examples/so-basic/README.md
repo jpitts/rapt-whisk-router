@@ -92,6 +92,10 @@ This example uses [winston](https://github.com/flatiron/winston) for customizabl
 
 ## Testing so-basic
 
-A basic chat transmission test using mocha is located in [test](test). Run chat_transmit_to_individual.sh after starting redis and the stack.
+A basic chat transmission test is located in [test](test).
+
+This test requires phantomjs and casperjs, installed outside of rapt-whisk-router.
+
+Using bash, call run_tests.sh after starting redis and the stack.
 
 

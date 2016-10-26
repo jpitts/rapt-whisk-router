@@ -6,7 +6,7 @@ A framework for building real-time web systems using Cipher and socket.io.
 
 This software is actively under development and is not yet ready for release!
 
-Also, it is important to note that pre-1.x Whisk depends on pre-1.x socket.io. An effort is under way to bring Whisk into the much-improved world of post-0.9.x socket.io!
+Whisk has now been updated to use socket.io 1.x!
 
 # Contributors
 
@@ -24,7 +24,7 @@ npm install rapt-whisk-router
 
 Whisk allows a real-time communications system to be created between web clients and any number of server-side processes. The intention for Whisk is to extend a [rapt-cipher](https://github.com/jpitts/rapt-cipher) network to the web. 
 
-Whisk provides a basic server framework for [socket.io 0.9](https://github.com/Automattic/socket.io/tree/0.9.14), facilitates message-passing between clients and servers, and enables sessions to be shared between socket.io nodes and web nodes. While any node-based web framework can be used with Whisk, [express](https://github.com/strongloop/express) support is built-in.
+Whisk provides a basic server framework for [socket.io 1.x](https://github.com/Automattic/socket.io), facilitates message-passing between clients and servers, and enables sessions to be shared between socket.io nodes and web nodes. While any node-based web framework can be used with Whisk, [express](https://github.com/strongloop/express) support is built-in.
 
 On the server-side, Cipher (running on top of redis) is used to share addressed messages between the web and websocket services. These services can then pass messages onto separate data processing nodes, and vice-versa, all the way back out to the web clients. A microservices-style system for the web thus can be constructed.
 

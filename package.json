@@ -1,7 +1,7 @@
 {
   "name": "rapt-whisk-router",
   "preferGlobal": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Jamie Pitts <james.pitts@gmail.com>",
   "description": "Websockets message passing framework with socket.io, redis, and rapt-whisk.",
   "contributors": [
@@ -44,6 +44,6 @@
   ],
   "license": "MIT",
   "engines": {
-    "node": "0.10.x"
+    "node": ">= 4.6.x"
   }
 }

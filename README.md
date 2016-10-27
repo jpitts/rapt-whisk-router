@@ -20,9 +20,9 @@ First install [redis 2.x](http://redis.io/download), instructions can be found i
 
 npm install rapt-whisk-router
 
-# Overview 
+# Overview
 
-Whisk allows a real-time communications system to be created between web clients and any number of server-side processes. The intention for Whisk is to extend a [rapt-cipher](https://github.com/jpitts/rapt-cipher) network to the web. 
+Whisk allows a real-time communications system to be created between web clients and any number of server-side processes. The intention for Whisk is to extend a [rapt-cipher](https://github.com/jpitts/rapt-cipher) network to the web.
 
 Whisk provides a basic server framework for [socket.io 1.x](https://github.com/Automattic/socket.io), facilitates message-passing between clients and servers, and enables sessions to be shared between socket.io nodes and web nodes. While any node-based web framework can be used with Whisk, [express](https://github.com/strongloop/express) support is built-in.
 
@@ -34,19 +34,21 @@ On the client-side, Whisk provides a convenient wrapper for socket.io and provid
 
 ## Whisk System
 
-A Whisk application is best described as a system of inter-connected components. These components may be traditional web controllers, web client javascript, server-side functions that react to incoming or outgoing messages, or even other node.js technologies outside of the domain of Whisk. 
+A Whisk application is best described as a system of inter-connected components. These components may be traditional web controllers, web client javascript, server-side functions that react to incoming or outgoing messages, or even other node.js technologies outside of the domain of Whisk.
 
-What brings the components together into a system is their individual roles and how they communicate with each other.
+What brings the components together into a system is their individual roles and how they communicate with each other using redis, a high-performance shared memory store.
 
 ## Horizontal Scaling and Microservices
 
-Whisk enables the developer to take full advantage of the CPU-intensive nature of node.js. This can be accomplished by expanding the number of web and websocket services horizontally onto additional server cores (as opposed to increasing the memory capacity of the server hardware). 
+Whisk enables the developer to take full advantage of the CPU-intensive nature of node.js. This can be accomplished by expanding the number of web and websocket services horizontally onto additional server cores (as opposed to increasing the memory capacity of the server hardware).
 
 With the use of a proxy, the developer can also decouple and specialize parts of a Whisk system (known as microservices architecture). This further eases scaling as the underlying hardware choices can reflect the expected utilization of specialized components.
 
-## The Separation of Web and WebSocket Services
+## Shared Session Between Web and WebSocket Services
 
-As web and websockets represent very different kinds of resource utilization, they are run separately. Each has its own means of storing sessions and user data, yet it is critical that the same user is securely known to both. Therefore, a process called session confirmation is performed each time a client connects to the Whisk system so that an individual web client is connected to an individual websocket conenction.
+As web and websockets represent very different kinds of resource utilization, they are run separately. A process called session confirmation is performed each time a client connects to the Whisk system so that the client's web client is matched with the appropriate websocket connection.
+
+Once a client's session is confirmed, Whisk maintains session data in a redis data store. Any Whisk service can interact with this data using [rapt-modelrizerly](https://github.com/jpitts/rapt-modelrizerly).
 
 ## Message Routing
 
@@ -113,16 +115,18 @@ Whisk.init({
   },
   session: {
     secret: 'abc123',
-    key: 'my-app-name' 
+    key: 'my-app-name'
   }
 });
 ```
 
 ### Whisk.context
 
-Context is passed onto Whisk during initialization. While context optionally includes logger and the custom log function, you are free to add other attributes in order to make them available via the Whisk.context. 
+Context is passed onto Whisk during initialization. While context optionally includes logger and the custom log function, you are free to add other attributes in order to make them available via the Whisk.context.
 
 For example, if you want to provide convenient access your custom data model, just add Model to the context object on init, and later call Whisk.context.Model from anywhere within the Whisk system.
+
+Already included in the context is access to the user session data via Whisk.context.Models.Session().
 
 ### Whisk.run_websocket_service
 
@@ -139,7 +143,7 @@ Whisk.run_websocket_service is called with the following optional attributes:
 
 A callback allows logging and other actions to take place after starting the websocket service.
 
-Example: 
+Example:
 
 ```js
 
@@ -163,18 +167,28 @@ The handler functions defined in the route and observer files are loaded when Wh
 
 Route Example:
 
-This example route file, when saved as "routes/RoomRoute.js", can define a set of functions that are called when a websocket client emits "room.say" or "room.holler". 
+This example route file, when saved as "routes/RoomRoute.js", can define a set of functions that are called when a websocket client emits "room.say" or "room.holler".
 
 ```js
 var Whisk = require("rapt-whisk-router");
 var whisk_handle = Whisk.Router.define_route("world");
 
 whisk_handle.on('say', function (socket, session, payload) {
-  console.log('User ID=' + socket.store.user_id + ' says ' + payload.message);,
+  console.log('User ID=' + session.user_id + ' says ' + payload.message);
+
+  session.update_store({ $set: { 'last_said': payload.message }}, function(err, updated_store) {
+    console.log('Stored last_said in session.');
+  });
+
 });
 
 whisk_handle.on('holler', function (socket, session, payload) {
-  console.log('User ID=' + socket.store.user_id + ' hollers ' + payload.message);,
+  console.log('User ID=' + session.user_id + ' hollers ' + payload.message);
+
+  session.update_store({ $set: { 'last_hollered': payload.message }}, function(err, updated_store) {
+    console.log('Stored last_hollered in session.');
+  });
+
 });
 ```
 
@@ -207,8 +221,8 @@ Example broadcast to all clients via the "room.holler" observer:
 
 ```js
 Cipher.broadcast(
-  "room.holler", 
-  {message: 'Holler back!'}, 
+  "room.holler",
+  {message: 'Holler back!'},
   {ns: "ws"}
 );
 ```
@@ -217,8 +231,8 @@ Example transmit to a specific client via the "room.reply" observer:
 
 ```js
 Cipher.transmit(
-  "room.reply", 
-  {message: 'This is my reply.'}, 
+  "room.reply",
+  {message: 'This is my reply.'},
   { ns:"ws", nid:0, tid:socket_id}
   socket_id
 );
@@ -242,13 +256,13 @@ Whisk.run_web_service({
 
     // static javascript file
     app.use(express.static(__dirname + '/public'));
-    
+
     // index route
     app.get('/', function(req, res) {
-        
+
       // start the session confirmation process
       whisk.Auth.start_ws_session_sync({
-        sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+        sid: whisk.Auth.get_sid_from_web_req(req),
         user_id: '123456890'
       }, function(ws_token, err) {
 
@@ -261,7 +275,7 @@ Whisk.run_web_service({
 });
 ```
 
-Due to the requirement to synchronize web and websockets sessions, it is necessary to run the web aspect of your system under Whisk's run_web_service, with a call to Whisk.Auth.start_ws_session_sync on all express routes loading a Whisk client. 
+Due to the requirement to synchronize web and websockets sessions, it is necessary to run the web aspect of your system under Whisk's run_web_service, with a call to Whisk.Auth.start_ws_session_sync on all express routes loading a Whisk client.
 
 Client-side Javascript:
 
@@ -335,16 +349,29 @@ var cipher_addr = Whisk.Auth.get_cipher_address_from_ws({socket: socket});
 console.log('cipher namespace: ' + cipher_addr.ns + ', node id: ' + cipher_addr.nid + ', tenent id: ' + cipher_addr.tid);
 
 Whisk.Config.cipher_instance().transmit(
-  "some.observer.handler", 
-  {message: 'Hello'}, 
-  cipher_addr, 
+  "some.observer.handler",
+  {message: 'Hello'},
+  cipher_addr,
   cipher_addr.tid
 );
 ```
 
+### Whisk.Auth.get_sid_from_web_req
+
+Returns the web session id given express web request.
+
+Example:
+
+```js
+var sid = Whisk.Auth.get_sid_from_web_req(req);
+```
+
+
 ### Whisk.Auth.get_sid_from_web_req_cookies
 
-Returns the web session id given express web request cookies. Whisk internally maintains how the cookie is named. 
+NOTE: will be deprecated shortly. Please use Whisk.Auth.get_sid_from_web_req().
+
+Returns the web session id given express web request cookies. Whisk internally maintains how the cookie is named.
 
 Example:
 
@@ -360,7 +387,7 @@ Example:
 
 ```js
 Whisk.Auth.start_ws_session_sync({
-  sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies),
+  sid: whisk.Auth.get_sid_from_web_req(req),
   user_id: '1234567890'
 }, function(ws_token, err) {
    ... now the web client must call Whisk.WebSocket.init with the ws_token ...
@@ -413,4 +440,3 @@ The [chat-room](examples/chat-room) example demonstrates a web-based realtime ch
 - worker server
 
 Lastly, the [chit-chat](https://github.com/jpitts/rapt-cipher/tree/master/examples/chit-chat) example hosted with Cipher demonstrates a bare-bones messaging between two web servers.
-

@@ -26,6 +26,8 @@ Whisk.run_web_service({
       var html = [];
       html.push("<html>");
       html.push("<head>");
+      html.push("<title>Hello, World!</title>");
+      html.push('<script src="http://localhost:8889/socket.io/socket.io.js"></script>');
       html.push('<script src="http://localhost:8889/socket.io/socket.io.js"></script>');
       html.push('<script src="/js/jquery-1.10.2/jquery-1.10.2.min.js"></script>');
       html.push('<script src="/rapt-whisk-router/WebSocket.js"></script>');
@@ -38,7 +40,7 @@ Whisk.run_web_service({
       html.push("</script>");
       html.push("<div><b>Hello, World!</b> This is User ID=" + attr.user_id + ' [<a href="/reset">Reset</a>]</div>');
       html.push('<div id="world-notice"></div>');
-      html.push('<div><form id="say-form"><input type="text"><input type="button" value="Say Something" onclick="HelloWorldClient.say_it()"/></form></div>');
+      html.push('<div><form id="say-form"><input type="text" id="chat-entry"><input type="button" id="button-chat-entry" value="Say Something" onclick="HelloWorldClient.say_it()"/></form></div>');
       html.push('<div id="world-reply"></div>');
       html.push("</body>");
       html.push("</html>");
@@ -72,7 +74,7 @@ Whisk.run_web_service({
       // get the whisk session sync token for use in the view function
       // NOTE: session id and user id are required attributes
       whisk.Auth.start_ws_session_sync({
-        sid: whisk.Auth.get_sid_from_web_req_cookies(req.cookies), 
+        sid: whisk.Auth.get_sid_from_web_req(req), 
         user_id: user.id                                            
       }, function(ws_token, err) {
 

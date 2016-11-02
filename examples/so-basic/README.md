@@ -17,7 +17,7 @@ How it all runs and how the components fit together are outlined below.
 
 ## Installation and Test Run
     
-Whisk requires node.js to be installed. Node 0.10.28 is recommended, use [nvm](https://github.com/creationix/nvm) to manage different versions of node if you have not yet found a way to do this.
+Whisk requires node.js to be installed. Node 4.6.x is recommended, use [nvm](https://github.com/creationix/nvm) to manage different versions of node if you have not yet found a way to do this.
    
 Whisk requires redis to be installed and configured. See the [../vendor/redis](../vendor/redis) directory if you do not yet have redis installed.
 
@@ -25,6 +25,10 @@ Install the node.js dependencies:
 ```
 npm install
 ```
+In order to run tests, please install casperjs. See [CasperJS Installation](http://docs.casperjs.org/en/latest/installation.html).
+
+## Running the so-basic system
+
 Start redis
 
 Start the microservices:

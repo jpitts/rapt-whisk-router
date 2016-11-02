@@ -7,7 +7,7 @@
   Overview:
     
     Test involves two casperjs instances interactingL "Primary Client" and "Client1". 
-    Both clients visit http://localhost:9090.
+    Both clients visit http://localhost:8888.
     A chat message is confirmed sent by primary to client1.
 
   Usage:
@@ -31,7 +31,7 @@
     casper.cli.get(1) - service URL
 */    
 
-var service_url = casper.cli.get(1) ? casper.cli.get(1) : 'http://localhost:9090';
+var service_url = casper.cli.get(1) ? casper.cli.get(1) : 'http://localhost:8888';
 
 var num_tests = 3;
 var casper_site = undefined;
@@ -104,7 +104,7 @@ casper.test.begin('Transmit to individual client', num_tests, function suite (te
     casper_site = this;
      
     log('warn', 'Loaded "' + casper_site.getTitle() + '"');
-    test.assertTitle("So Basic", "The expected title is 'So Basic'");
+    test.assertTitle("Hello, World!", "The expected title is 'Hello, World!'");
 
   }); // end casper.start
 
@@ -113,13 +113,13 @@ casper.test.begin('Transmit to individual client', num_tests, function suite (te
     status indicator test
   */
 
-  casper.waitForSelector('#status', function() {
-    log('warn', 'Loaded #status selector');
+  casper.waitForSelector('#world-notice', function() {
+    log('warn', 'Loaded #world-notice selector');
     var page = this;
 
-    //require('utils').dump(page.getElementsInfo('#status'));
-    var elem = page.getElementsInfo('#status');
-    test.assertMatch(elem[0].html, /^Connection to So Basic active\./i, "Active connection indicator expected.");
+    //require('utils').dump(page.getElementsInfo('#world-notice'));
+    var elem = page.getElementsInfo('#world-notice');
+    test.assertMatch(elem[0].html, /^Connected to ws\-/i, "Active connection indicator expected.");
 
   }); // END status indicator test
 
@@ -128,15 +128,15 @@ casper.test.begin('Transmit to individual client', num_tests, function suite (te
     chat from client1 test
   */
 
-  casper.waitForSelector('#chat-messages', function() {
-    log('warn', 'Loaded #chat-messages selector');
+  casper.waitForSelector('#world-reply', function() {
+    log('warn', 'Loaded #world-reply selector');
     var page = this;
-    //require('utils').dump(page.getElementsInfo('#chat-messages'));
+    //require('utils').dump(page.getElementsInfo('#world-reply'));
      
     // wait until chat message has been received
     setTimeout(function () {
-      log('warn', 'Testing for messages on .chat-message selector');
-      var elem = page.getElementsInfo('#chat-messages p');
+      log('warn', 'Testing for messages on #world-reply selector');
+      var elem = page.getElementsInfo('#world-reply');
       test.assertMatch(elem[0].html, /Hello\, Primary Client/i, "Chat message from client1 expected.");
 
     }, timeouts.until_chat_test);

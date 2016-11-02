@@ -39,7 +39,7 @@ In one or more browsers, go to: http://localhost:9090
 
 In a separate shell, fire up the test calls.
 ```
-./test/chat_transmit_to_individual.sh
+./test/run_tests.sh
 ```
 
 ## Running the so-basic system
